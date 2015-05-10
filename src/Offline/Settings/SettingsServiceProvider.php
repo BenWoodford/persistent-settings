@@ -40,11 +40,10 @@ class SettingsServiceProvider extends ServiceProvider
         $this->app['settings'] = $this->app->share(function ($app) {
 
             $config = $app->config->get('settings', [
-                'cache_file' => storage_path('settings.json'),
                 'db_table'   => 'settings'
             ]);
 
-            return new Settings($app['db'], new Cache($config['cache_file']), $config);
+            return new Settings($app['db'], new Cache(), $config);
         });
     }
 
