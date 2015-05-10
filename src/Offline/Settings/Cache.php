@@ -6,14 +6,6 @@
  */
 class Cache
 {
-
-    /**
-     * Path to cache file
-     *
-     * @var string
-     */
-    protected $cacheFile;
-
     /**
      * Cached Settings
      *
@@ -27,11 +19,8 @@ class Cache
      *
      * @param string $cacheFile
      */
-    public function __construct($cacheFile)
+    public function __construct()
     {
-        $this->cacheFile = $cacheFile;
-        $this->checkCacheFile();
-
         $this->settings = $this->getAll();
     }
 
@@ -83,11 +72,7 @@ class Cache
      */
     public function getAll()
     {
-        $values = json_decode(file_get_contents($this->cacheFile), true);
-        foreach ($values as $key => $value) {
-            $values[$key] = unserialize($value);
-        }
-        return $values;
+        return \Cache::get('offline_persistent_settings', array());
     }
 
     /**
@@ -97,11 +82,7 @@ class Cache
      */
     private function store()
     {
-        $settings = [];
-        foreach ($this->settings as $key => $value) {
-            $settings[$key] = serialize($value);
-        }
-        file_put_contents($this->cacheFile, json_encode($settings));
+        \Cache::forever('offline_persistent_settings', $this->settings);
     }
 
     /**
@@ -124,18 +105,6 @@ class Cache
      */
     public function flush()
     {
-        file_put_contents($this->cacheFile, json_encode([]));
-    }
-
-    /**
-     * Checks if the cache file exists and creates it if not
-     *
-     * @return void
-     */
-    private function checkCacheFile()
-    {
-        if (!file_exists($this->cacheFile)) {
-            $this->flush();
-        }
+        \Cache::forget('offline_persistent_settings');
     }
 }
